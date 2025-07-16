@@ -36,7 +36,7 @@ st.markdown(
         background-position: center center;
         background-attachment: fixed; /* 스크롤 시 배경 고정 */
     }
-   
+    
     /* Streamlit 앱 컨테이너 스타일 */
     .stApp {
         background-color: rgba(0, 0, 0, 0.5); /* 반투명 검정 배경 */
@@ -44,7 +44,7 @@ st.markdown(
         padding: 20px;
         border-radius: 10px;
     }
-   
+    
     /* 사이드바 스타일 */
     .stSidebar {
         background-color: rgba(26, 26, 46, 0.8); /* 반투명 어두운 파랑 */
@@ -85,7 +85,7 @@ st.markdown(
         color: #ADD8E6; /* 더 밝은 파란색 */
         text-shadow: 0 0 8px rgba(173, 216, 230, 0.5);
     }
-   
+    
     /* 일반 텍스트, 마크다운, 정보 박스 텍스트 스타일 */
     p, .stMarkdown, .stInfo {
         color: #E0FFFF; /* 아주 밝은 시안색 */
@@ -116,7 +116,7 @@ st.markdown(
     .stSlider > div > div > div > div {
         color: #87CEFA;
     }
-   
+    
     /* 숫자 입력 필드 스타일 */
     .stNumberInput input {
         color: #b0e0e6;
@@ -124,7 +124,7 @@ st.markdown(
         border: 1px solid #4682B4;
         border-radius: 5px;
     }
-   
+    
     /* 체크박스 스타일 */
     .stCheckbox > label > div:first-child {
         border-color: #87CEFA !important;
@@ -159,7 +159,7 @@ st.markdown(
         background: linear-gradient(to right, #1A2A4A, #2A3A5A, #3A4A6A); /* 어둡고 깊은 파란색 그라데이션 */
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
     }
-   
+    
     .stButton > button:hover {
         background: linear-gradient(to right, #4682B4, #6A9CC9, #8DBBDD); /* 밝은 파란색 그라데이션 */
         transform: translateY(-3px); /* 약간 위로 이동 */
@@ -205,7 +205,7 @@ def calculate_magnification_data(lens_m: float, planet_m_ratio: float, planet_or
         tuple[np.ndarray, np.ndarray]: 시간 포인트와 해당 시간의 밝기 변화 (증폭률) 배열.
     """
     time_points = np.linspace(-15, 15, 300) # -15일에서 +15일까지 300개의 시간 포인트
-   
+    
     # 기본 렌즈 별에 의한 밝기 변화 (가우시안 함수 형태)
     # 50/velocity는 이벤트 지속 시간에 영향을 줍니다.
     magnification = 1.0 + np.exp(-(time_points / (50 / velocity))**2) * (lens_m * 0.5)
@@ -216,11 +216,11 @@ def calculate_magnification_data(lens_m: float, planet_m_ratio: float, planet_or
         # planet_orb * cos(phase)는 행성의 궤도 위치에 따른 시간 지연/선행을 모의합니다.
         # velocity / 10은 시간 스케일을 맞추기 위한 조정값입니다.
         planet_influence_time = time_points - (planet_orb * np.cos(np.deg2rad(phase))) / (velocity / 10)
-       
+        
         # 행성에 의한 추가 밝기 변화 (또 다른 가우시안 형태의 작은 피크 또는 딥)
         # planet_m_ratio * 100은 행성 질량비에 따른 폭을, planet_m_ratio * 50은 높이를 조절합니다.
         magnification += np.exp(-( (planet_influence_time - 2)**2 / (0.5 + planet_m_ratio * 100)) ) * (planet_m_ratio * 50)
-       
+        
     return time_points, magnification
 
 # --- Matplotlib 그래프 생성 함수 (캐싱) ---
@@ -242,14 +242,14 @@ def plot_light_curve(time_points: np.ndarray, magnifications: np.ndarray) -> plt
     ax.set_ylabel("상대 밝기 / 증폭률", fontsize=12, color='white')
     ax.set_title("중력 마이크로렌징 밝기 곡선", fontsize=14, color='white')
     ax.grid(True, linestyle='--', alpha=0.7, color='#4682B4') # 그리드 스타일
-   
+    
     # y축 범위 자동 조정 (최소 0.8, 최대 2.5를 기준으로 데이터에 맞게 확장)
     ax.set_ylim(min(0.8, np.min(magnifications) * 0.9), max(2.5, np.max(magnifications) * 1.1))
-   
+    
     ax.legend(labelcolor='white') # 범례 글자색
     ax.tick_params(axis='x', colors='white') # x축 틱 색상
     ax.tick_params(axis='y', colors='white') # y축 틱 색상
-   
+    
     return fig
 
 # --- 페이지 전환 콜백 함수 ---
@@ -269,8 +269,8 @@ def main_page():
     st.write("환영합니다! 아래 버튼을 눌러 시뮬레이션을 시작하거나 설명을 확인하세요.")
     st.markdown("---")
 
-    # 두 개의 컬럼으로 버튼 배치
-    col1, col2 = st.columns(2)
+    # 세 개의 컬럼으로 버튼 배치 (기존 2개에서 3개로 변경)
+    col1, col2, col3 = st.columns(3) # 새로운 컬럼 추가
 
     with col1:
         st.button(
@@ -283,10 +283,19 @@ def main_page():
 
     with col2:
         st.button(
-            "📚 시뮬레이션 설명 보기",
+            "� 시뮬레이션 설명 보기",
             key="view_explanation_button",
             on_click=set_page,
             args=('explanation',), # 콜백 함수에 'explanation' 페이지 이름 전달
+            use_container_width=True
+        )
+    
+    with col3: # 새로운 설명 버튼 추가
+        st.button(
+            "✨ 중력렌즈 효과 자세히 알아보기", # 새로운 버튼 텍스트
+            key="learn_more_gravitational_lensing",
+            on_click=set_page,
+            args=('explanation',), # 동일하게 'explanation' 페이지로 이동
             use_container_width=True
         )
 
@@ -315,7 +324,7 @@ def simulation_page():
     # 렌즈 상대 속도 설정
     lens_velocity = st.sidebar.slider("렌즈 상대 속도 (km/s)", min_value=1.0, max_value=100.0, value=10.0, step=1.0)
     st.sidebar.markdown('<p class="setting-description">렌즈 별이 광원 별 앞을 지나가는 상대적인 속도입니다. 빠를수록 밝기 변화 현상이 짧아집니다.</p>', unsafe_allow_html=True)
-   
+    
     st.sidebar.subheader("행성 (Planet - 선택 사항)")
     has_planet = st.sidebar.checkbox("행성 포함", value=False)
     st.sidebar.markdown('<p class="setting-description">렌즈 별에 행성이 동반되어 있는지 설정합니다.</p>', unsafe_allow_html=True)
@@ -324,10 +333,10 @@ def simulation_page():
     if has_planet:
         planet_mass_ratio = st.sidebar.slider("행성 질량비 (렌즈 별 질량 대비)", min_value=0.0001, max_value=0.1, value=0.001, format="%.4f")
         st.sidebar.markdown('<p class="setting-description">렌즈 별 질량 대비 행성의 질량 비율입니다. 높을수록 행성 신호가 뚜렷해집니다.</p>', unsafe_allow_html=True)
-       
+        
         planet_orbit_radius = st.sidebar.slider("행성 궤도 반지름 (Einstein Radius 단위)", min_value=0.01, max_value=3.0, value=1.0, step=0.01)
         st.sidebar.markdown('<p class="setting-description">행성이 렌즈 별 주위를 도는 궤도의 크기입니다.</p>', unsafe_allow_html=True)
-       
+        
         planet_phase = st.sidebar.slider("행성 초기 위상 (도)", min_value=0, max_value=360, value=0, step=10)
         st.sidebar.markdown('<p class="setting-description">시뮬레이션 시작 시 행성의 궤도 상 초기 위치입니다.</p>', unsafe_allow_html=True)
     else:
@@ -424,3 +433,4 @@ elif st.session_state.page == 'explanation':
 
 # 하단 저작권 표시
 st.caption("© 2025 중력 마이크로렌징 시뮬레이터")
+�
