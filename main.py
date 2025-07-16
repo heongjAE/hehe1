@@ -8,21 +8,17 @@ import platform
 # --- 폰트 및 Matplotlib 스타일 설정 ---
 @st.cache_resource
 def setup_matplotlib():
-    # 운영체제에 따라 한글 폰트 설정
     if platform.system() == 'Darwin': # Mac
         plt.rcParams['font.family'] = 'AppleGothic'
     elif platform.system() == 'Windows': # Windows
         plt.rcParams['font.family'] = 'Malgun Gothic'
     else: # Linux (Ubuntu 등)
-        # Linux의 경우 'NanumGothic' 설치 필요:
-        # sudo apt-get update
-        # sudo apt-get install fonts-nanum-extra
         plt.rcParams['font.family'] = 'NanumGothic'
 
-    plt.rcParams['axes.unicode_minus'] = False # 마이너스 기호 깨짐 방지
-    plt.style.use('dark_background') # 어두운 배경 스타일 적용
+    plt.rcParams['axes.unicode_minus'] = False
+    plt.style.use('dark_background')
 
-setup_matplotlib() # 앱 시작 시 한 번만 실행되도록 캐싱
+setup_matplotlib()
 
 
 # --- 전체 페이지 스타일 설정 (HTML/CSS 인라인 삽입) ---
@@ -121,7 +117,7 @@ st.markdown(
     /* 메인 페이지 버튼 스타일 (배경색 그라데이션 및 호버 효과 강화) */
     .stButton > button {
         display: block;
-        width: 100%; /* use_container_width와 함께 작동 */
+        width: 100%;
         padding: 20px;
         margin: 20px auto;
         font-size: 1.5em;
@@ -134,34 +130,32 @@ st.markdown(
         text-decoration: none;
 
         /* 버튼 배경에 그라데이션 적용 */
-        background: linear-gradient(to right, #1A2A4A, #2A3A5A, #3A4A6A); /* 어둡고 깊은 파란색 그라데이션 */
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 기본 그림자 */
+        background: linear-gradient(to right, #1A2A4A, #2A3A5A, #3A4A6A);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
     }
     
     .stButton > button:hover {
-        /* hover 시 배경 그라데이션을 더 밝게 */
-        background: linear-gradient(to right, #4682B4, #6A9CC9, #8DBBDD); /* 밝은 파란색 그라데이션 */
+        background: linear-gradient(to right, #4682B4, #6A9CC9, #8DBBDD);
         transform: translateY(-3px);
-        box-shadow: 0 6px 20px rgba(70, 130, 180, 0.7); /* 더 강한 그림자 효과 */
+        box-shadow: 0 6px 20px rgba(70, 130, 180, 0.7);
     }
 
     /* Streamlit이 버튼 텍스트를 렌더링하는 방식 때문에 추가적인 CSS 필요 */
-    /* st.button으로 생성된 버튼의 span 요소에 스타일 적용 */
     .stButton > button > div > span {
-        background-image: linear-gradient(to right, #00BFFF, #87CEFA, #ADD8E6); /* 글자색 그라데이션 */
+        background-image: linear-gradient(to right, #00BFFF, #87CEFA, #ADD8E6);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        color: transparent; /* fallback */
-        text-shadow: 0 0 8px rgba(135, 206, 250, 0.6); /* 글자 그림자 효과 */
+        color: transparent;
+        text-shadow: 0 0 8px rgba(135, 206, 250, 0.6);
         font-weight: bold;
     }
 
     .stButton > button:hover > div > span {
-        background-image: none; /* hover 시 글자 그라데이션 제거 */
+        background-image: none;
         -webkit-background-clip: unset;
         -webkit-text-fill-color: unset;
-        color: white; /* hover 시 글자색 흰색으로 변경 */
-        text-shadow: none; /* 그림자 효과 제거 */
+        color: white;
+        text-shadow: none;
     }
     </style>
     """,
@@ -215,7 +209,12 @@ def create_microlensing_image_cached(impact_param, resolution=400):
     lens_radius = 0.03
     lens_color = 'white'
 
-    if impact_param < 0.1:
+    # 중력 렌즈 (중앙의 흰 점)
+    lens_circle = Circle((0, 0), lens_radius, color=lens_color, zorder=10)
+    ax.add_patch(lens_circle)
+
+    # 광원 별의 왜곡된 이미지 표현
+    if impact_param < 0.1: # 아인슈타인 링에 가까운 경우
         ring_radius = 0.5 + (0.1 - impact_param) * 2
         img_size = resolution
         img = Image.new('RGB', (img_size, img_size), color = 'black')
@@ -231,20 +230,21 @@ def create_microlensing_image_cached(impact_param, resolution=400):
                      outline=source_color, width=max(1, int(img_size / 100)))
         ax.imshow(np.array(img), extent=[-1.5, 1.5, -1.5, 1.5], zorder=0)
         
-    elif impact_param < 0.5:
+    elif impact_param < 0.5: # 이미지가 분리되거나 늘어나는 경우
+        # 두 개의 왜곡된 이미지 (개념적 표현)
         circle1 = Circle((source_radius * 2 * (1 - impact_param), 0), source_radius * 1.5 * (1 - impact_param/0.5), color=source_color, alpha=0.8)
         ax.add_patch(circle1)
         circle2 = Circle((-source_radius * 1 * (1 - impact_param), 0), source_radius * 0.5 * (1 - impact_param/0.5), color=source_color, alpha=0.5)
         ax.add_patch(circle2)
-    else:
+    else: # 왜곡이 거의 없는 경우 (원래 광원 별)
         circle = Circle((0, 0), source_radius, color=source_color)
         ax.add_patch(circle)
     
-    lens_circle = Circle((0, 0), lens_radius, color=lens_color, zorder=10)
-    ax.add_patch(lens_circle)
-    
     return fig
 
+# --- 페이지 전환 콜백 함수 ---
+def set_page(page_name):
+    st.session_state.page = page_name
 
 # --- 1. 메인 페이지 함수 ---
 def main_page():
@@ -255,16 +255,22 @@ def main_page():
     col1, col2 = st.columns(2)
 
     with col1:
-        st.button("🚀 중력 마이크로렌징 시뮬레이션 시작", key="start_simulation_button", use_container_width=True)
-        if st.session_state.start_simulation_button:
-            st.session_state.page = 'simulation'
-            st.rerun()
+        st.button(
+            "🚀 중력 마이크로렌징 시뮬레이션 시작",
+            key="start_simulation_button",
+            on_click=set_page,
+            args=('simulation',),
+            use_container_width=True
+        )
 
     with col2:
-        st.button("📚 시뮬레이션 설명 보기", key="view_explanation_button", use_container_width=True)
-        if st.session_state.view_explanation_button:
-            st.session_state.page = 'explanation'
-            st.rerun()
+        st.button(
+            "📚 시뮬레이션 설명 보기",
+            key="view_explanation_button",
+            on_click=set_page,
+            args=('explanation',),
+            use_container_width=True
+        )
 
 # --- 2. 시뮬레이션 페이지 함수 ---
 def simulation_page():
@@ -280,18 +286,11 @@ def simulation_page():
     # --- 2. 시뮬레이션 설정 입력 받기 ---
     st.sidebar.header("설정")
 
-    # 광원 별 설정
-    st.sidebar.subheader("광원 별 (Source Star)")
-    source_mass = st.sidebar.number_input("질량 (태양 질량)", min_value=0.1, max_value=10.0, value=1.0, step=0.1)
-
-    # 렌즈 별 설정
-    st.sidebar.subheader("렌즈 별 (Lens Star)")
-    lens_mass = st.sidebar.number_input("질량 (태양 질량)", min_value=0.1, max_value=5.0, value=0.5, step=0.1)
-    lens_velocity = st.sidebar.slider("상대 속도 (km/s)", min_value=1.0, max_value=100.0, value=10.0, step=1.0)
+    source_mass = st.sidebar.number_input("광원 별 질량 (태양 질량)", min_value=0.1, max_value=10.0, value=1.0, step=0.1)
+    lens_mass = st.sidebar.number_input("렌즈 별 질량 (태양 질량)", min_value=0.1, max_value=5.0, value=0.5, step=0.1)
+    lens_velocity = st.sidebar.slider("렌즈 상대 속도 (km/s)", min_value=1.0, max_value=100.0, value=10.0, step=1.0)
     impact_parameter = st.sidebar.slider("충격 매개변수", min_value=0.0, max_value=2.0, value=0.5, step=0.05)
-
-
-    # 행성 설정 (선택 사항)
+    
     st.sidebar.subheader("행성 (Planet - 선택 사항)")
     has_planet = st.sidebar.checkbox("행성 포함", value=False)
     if has_planet:
@@ -306,44 +305,47 @@ def simulation_page():
     st.sidebar.write("---")
     st.sidebar.info("참고: 이 시뮬레이터의 밝기 곡선과 이미지 시뮬레이션은 개념적인 모델에 기반하며, 실제 천체 물리 계산과 다를 수 있습니다.")
 
-    # 밝기 계산
     time_points, magnifications = calculate_magnification_data(
-        lens_mass,
-        planet_mass_ratio,
-        planet_orbit_radius,
-        planet_phase,
-        lens_velocity,
-        impact_parameter,
-        has_planet
+        lens_mass, planet_mass_ratio, planet_orbit_radius, planet_phase,
+        lens_velocity, impact_parameter, has_planet
     )
 
-    # --- 4. 밝기 곡선 그래프 그리기 ---
-    st.subheader("밝기 곡선")
+    # --- 4. 배경별 광도 변화 (밝기 곡선) 그래프 그리기 ---
+    st.subheader("📈 배경별 광도 변화 (밝기 곡선)")
+    st.write("""
+        이 그래프는 렌즈 별이 배경 광원 별 앞을 지나갈 때,
+        **배경 광원 별의 밝기가 시간 경과에 따라 어떻게 변하는지** 보여줍니다.
+        중력 렌즈 효과로 인해 밝기가 일시적으로 증가하는 피크가 나타납니다.
+        행성이 존재하면 이 피크에 미세한 추가적인 밝기 변화가 나타날 수 있습니다.
+    """)
     fig_light_curve = plot_light_curve(time_points, magnifications)
     st.pyplot(fig_light_curve)
-    plt.close(fig_light_curve) # 중요: 그래프 객체를 닫아 메모리 누수 방지
+    plt.close(fig_light_curve)
 
     st.write("---")
 
-    # --- 5. 이미지 시뮬레이션 ---
-    st.subheader("이미지 왜곡 시뮬레이션 (개념적)")
+    # --- 5. 중력렌즈 시스템 시각화 (이미지 왜곡) ---
+    st.subheader("🌌 중력렌즈 시스템 시각화 (광원 별 이미지 왜곡)")
     st.write("""
-        아래 이미지는 **렌즈 별(중앙의 검은 점)**이 배경 광원 별의 빛을 휘게 하여
-        어떻게 보일 수 있는지 개념적으로 보여줍니다. 
-        실제 마이크로렌징 현상은 빛을 여러 경로로 휘게 하여 광원 별이 여러 개로 보이거나
-        아인슈타인 링과 같은 형태로 왜곡될 수 있습니다.
+        아래 이미지는 **중력 렌즈 시스템**을 개념적으로 보여줍니다.
+        중앙의 작은 흰 점은 **렌즈 별**을 나타내며, 주변의 노란색/주황색 영역은
+        렌즈 별의 중력에 의해 **배경 광원 별의 빛이 휘어져 보이는 모습**을 시뮬레이션한 것입니다.
+        충격 매개변수 값에 따라 아인슈타인 링이나 여러 개의 이미지로 왜곡될 수 있습니다.
     """)
 
     fig_image_sim = create_microlensing_image_cached(impact_parameter)
     st.pyplot(fig_image_sim)
-    plt.close(fig_image_sim) # 중요: 그래프 객체를 닫아 메모리 누수 방지
+    plt.close(fig_image_sim)
 
     st.write("---")
 
     # 메인으로 돌아가기 버튼
-    if st.button("⬅️ 메인 화면으로 돌아가기", key="back_to_main_sim"):
-        st.session_state.page = 'main'
-        st.rerun()
+    st.button(
+        "⬅️ 메인 화면으로 돌아가기",
+        key="back_to_main_sim",
+        on_click=set_page,
+        args=('main',)
+    )
 
 # --- 3. 시뮬레이션 설명 페이지 함수 ---
 def explanation_page():
@@ -385,19 +387,16 @@ def explanation_page():
 
     st.write("---")
     # 메인으로 돌아가기 버튼
-    if st.button("⬅️ 메인 화면으로 돌아가기", key="back_to_main_exp"):
-        st.session_state.page = 'main'
-        st.rerun()
+    st.button(
+        "⬅️ 메인 화면으로 돌아가기",
+        key="back_to_main_exp",
+        on_click=set_page,
+        args=('main',)
+    )
 
 # --- 앱의 진입점 (페이지 라우팅) ---
 if 'page' not in st.session_state:
     st.session_state.page = 'main'
-
-if 'start_simulation_button' not in st.session_state:
-    st.session_state.start_simulation_button = False
-if 'view_explanation_button' not in st.session_state:
-    st.session_state.view_explanation_button = False
-
 
 if st.session_state.page == 'main':
     main_page()
