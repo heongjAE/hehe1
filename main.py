@@ -338,6 +338,20 @@ def simulation_page():
     st.sidebar.write("---")
     st.sidebar.info("참고: 이 시뮬레이터의 밝기 곡선은 개념적인 모델에 기반하며, 실제 천체 물리 계산과 다를 수 있습니다.")
 
+    # --- 시뮬레이션 개념 이미지 추가 ---
+    st.subheader("💡 중력 마이크로렌징 개념")
+    st.write("""
+        아래 그림은 **중력 마이크로렌징 현상**이 어떻게 발생하는지 개념적으로 보여줍니다.
+        **렌즈 별**이 우리(관측자)와 **배경 광원 별** 사이를 지나가면서, 렌즈 별의 중력이 광원 별의 빛을 휘게 하여
+        일시적으로 광원 별의 밝기가 증가하는 원리입니다.
+    """)
+    st.image(
+        "https://upload.wikimedia.org/wikipedia/commons/e/e0/GravitationalMicrolensing.gif", # Wikimedia Commons의 개념 GIF 이미지
+        caption="중력 마이크로렌징 개념 (출처: Wikipedia Commons)",
+        use_column_width=True # 컬럼 너비에 맞춰 이미지 크기 조절
+    )
+    st.write("---")
+
     # 밝기 곡선 데이터 계산
     time_points, magnifications = calculate_magnification_data(
         lens_mass, planet_mass_ratio, planet_orbit_radius, planet_phase,
@@ -346,12 +360,6 @@ def simulation_page():
 
     # --- 배경별 광도 변화 (밝기 곡선) 그래프 표시 ---
     st.subheader("📈 배경별 광도 변화 (밝기 곡선)")
-    st.write("""
-        이 그래프는 렌즈 별이 배경 광원 별 앞을 지나갈 때,
-        **배경 광원 별의 밝기가 시간 경과에 따라 어떻게 변하는지** 보여줍니다.
-        **중력 렌즈 효과**로 인해 밝기가 일시적으로 증가하는 피크가 나타납니다.
-        행성이 존재하면 이 피크에 미세한 추가적인 밝기 변화가 나타날 수 있습니다.
-    """)
     fig_light_curve = plot_light_curve(time_points, magnifications)
     st.pyplot(fig_light_curve)
     plt.close(fig_light_curve) # Matplotlib Figure 객체 닫아 메모리 관리
@@ -391,7 +399,7 @@ def explanation_page():
     - **행성 포함 (Planet Inclusion):** 렌즈 별에 행성이 동반되어 있는지 여부를 설정합니다.
         - **행성 질량비 (Planet Mass Ratio):** 렌즈 별 질량 대비 행성의 질량 비율입니다. 이 비율이 클수록 행성에 의한 추가적인 밝기 변화 신호가 뚜렷해집니다.
         - **행성 궤도 반지름 (Planet Orbit Radius):** 행성이 렌즈 별 주위를 도는 궤도의 크기입니다. (아인슈타인 반지름 단위)
-        - **행성 초기 위상 (Planet Initial Phase):** 시뮬레이션 시작 시 행성의 궤도 상의 초기 위치를 각도로 나타냅니다.
+        - **행성 초기 위상 (Planet Initial Phase):** 시뮬레이션 시작 시 행성의 궤도 상의 초기 위치입니다.
     """)
 
     st.subheader("시뮬레이션 결과 해석")
