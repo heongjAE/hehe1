@@ -91,14 +91,17 @@ st.markdown(
         color: #E0FFFF; /* 아주 밝은 시안색 */
     }
 
-    /* 사이드바 설정 설명 텍스트 스타일 */
+    /* 사이드바 설정 설명 텍스트 스타일 (네모 박스 및 글자색 변경) */
     .stSidebar .setting-description {
-        font-size: 0.85em;
-        color: #ADD8E6;
-        margin-top: -10px;
-        margin-bottom: 10px;
-        line-height: 1.3;
-        padding-left: 5px;
+        font-size: 0.85em; /* 글씨 크기 줄이기 */
+        color: #B0E0E6; /* 새로운 글자색 (밝은 파랑) */
+        background-color: rgba(30, 30, 60, 0.7); /* 배경색 (어두운 파랑/보라) */
+        border: 1px solid #4682B4; /* 테두리 (중간 파랑) */
+        border-radius: 5px; /* 모서리 둥글게 */
+        padding: 8px 10px; /* 내부 여백 */
+        margin-top: -5px; /* 위젯과의 간격 조정 */
+        margin-bottom: 15px; /* 다음 위젯과의 간격 */
+        line-height: 1.4;
     }
 
     /* 정보 박스 스타일 */
