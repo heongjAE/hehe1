@@ -30,7 +30,7 @@ st.markdown(
     /* 전체 바디 배경 설정 */
     body {
         background-color: #000000; /* 어두운 배경색 */
-        background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/ESO_-_The_Milky_Way_over_Paranal_%28by_Y.Beletsky%29.jpg/1280px-ESO_-_The_Milky_Way_over_Paranal_%28by_Y.Beletsky%29.jpg'); /* 은하수 배경 이미지 */
+        background-image: url('https://upload.wikimedia.wikimedia.org/wikipedia/commons/thumb/c/c5/ESO_-_The_Milky_Way_over_Paranal_%28by_Y.Beletsky%29.jpg/1280px-ESO_-_The_Milky_Way_over_Paranal_%28by_Y.Beletsky%29.jpg'); /* 은하수 배경 이미지 */
         background-repeat: no-repeat;
         background-size: cover;
         background-position: center center;
@@ -276,7 +276,7 @@ def main_page():
         st.button(
             "🚀 중력 마이크로렌징 시뮬레이션 시작",
             key="start_simulation_button",
-            on_on_click=set_page,
+            on_click=set_page,
             args=('simulation',), # 콜백 함수에 'simulation' 페이지 이름 전달
             use_container_width=True # 컨테이너 너비에 맞춤
         )
@@ -338,20 +338,6 @@ def simulation_page():
     st.sidebar.write("---")
     st.sidebar.info("참고: 이 시뮬레이터의 밝기 곡선은 개념적인 모델에 기반하며, 실제 천체 물리 계산과 다를 수 있습니다.")
 
-    # --- 시뮬레이션 개념 이미지 추가 ---
-    st.subheader("💡 중력 마이크로렌징 개념")
-    st.write("""
-        아래 그림은 **중력 마이크로렌징 현상**이 어떻게 발생하는지 개념적으로 보여줍니다.
-        **렌즈 별**이 우리(관측자)와 **배경 광원 별** 사이를 지나가면서, 렌즈 별의 중력이 광원 별의 빛을 휘게 하여
-        일시적으로 광원 별의 밝기가 증가하는 원리입니다.
-    """)
-    st.image(
-        "https://upload.wikimedia.org/wikipedia/commons/e/e0/GravitationalMicrolensing.gif", # Wikimedia Commons의 개념 GIF 이미지
-        caption="중력 마이크로렌징 개념 (출처: Wikipedia Commons)",
-        use_column_width=True # 컬럼 너비에 맞춰 이미지 크기 조절
-    )
-    st.write("---")
-
     # 밝기 곡선 데이터 계산
     time_points, magnifications = calculate_magnification_data(
         lens_mass, planet_mass_ratio, planet_orbit_radius, planet_phase,
@@ -360,7 +346,12 @@ def simulation_page():
 
     # --- 배경별 광도 변화 (밝기 곡선) 그래프 표시 ---
     st.subheader("📈 배경별 광도 변화 (밝기 곡선)")
-    # **이 부분의 st.write() 설명이 삭제되었습니다.**
+    st.write("""
+        이 그래프는 렌즈 별이 배경 광원 별 앞을 지나갈 때,
+        **배경 광원 별의 밝기가 시간 경과에 따라 어떻게 변하는지** 보여줍니다.
+        **중력 렌즈 효과**로 인해 밝기가 일시적으로 증가하는 피크가 나타납니다.
+        행성이 존재하면 이 피크에 미세한 추가적인 밝기 변화가 나타날 수 있습니다.
+    """)
     fig_light_curve = plot_light_curve(time_points, magnifications)
     st.pyplot(fig_light_curve)
     plt.close(fig_light_curve) # Matplotlib Figure 객체 닫아 메모리 관리
