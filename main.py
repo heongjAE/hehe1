@@ -276,7 +276,7 @@ def main_page():
         st.button(
             "🚀 중력 마이크로렌징 시뮬레이션 시작",
             key="start_simulation_button",
-            on_click=set_page,
+            on_on_click=set_page,
             args=('simulation',), # 콜백 함수에 'simulation' 페이지 이름 전달
             use_container_width=True # 컨테이너 너비에 맞춤
         )
@@ -360,12 +360,7 @@ def simulation_page():
 
     # --- 배경별 광도 변화 (밝기 곡선) 그래프 표시 ---
     st.subheader("📈 배경별 광도 변화 (밝기 곡선)")
-    st.write("""
-        이 그래프는 렌즈 별이 배경 광원 별 앞을 지나갈 때,
-        **배경 광원 별의 밝기가 시간 경과에 따라 어떻게 변하는지** 보여줍니다.
-        **중력 렌즈 효과**로 인해 밝기가 일시적으로 증가하는 피크가 나타납니다.
-        행성이 존재하면 이 피크에 미세한 추가적인 밝기 변화가 나타날 수 있습니다.
-    """)
+    # **이 부분의 st.write() 설명이 삭제되었습니다.**
     fig_light_curve = plot_light_curve(time_points, magnifications)
     st.pyplot(fig_light_curve)
     plt.close(fig_light_curve) # Matplotlib Figure 객체 닫아 메모리 관리
