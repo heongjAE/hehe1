@@ -19,15 +19,10 @@ else: # Linux (Ubuntu 등)
 plt.rcParams['axes.unicode_minus'] = False # 마이너스 기호 깨짐 방지
 
 # --- 폰트 캐시 삭제 (에러 방지) ---
-# Matplotlib 폰트 설정 변경 후 캐시를 지워줘야 반영되는 경우가 있습니다.
-# 이 코드는 앱 실행 시 한 번만 실행되도록 캐싱됩니다.
 @st.cache_resource
 def clear_matplotlib_cache():
     plt.style.use('dark_background') # 어두운 배경 스타일 적용
     # Matplotlib 폰트 캐시를 지웁니다.
-    # import matplotlib.font_manager as fm
-    # fm._load_fontmanager(try_read_cache=False) # 이 방식은 최신 버전에서 다르게 작동할 수 있습니다.
-    # 간단히 font_manager를 리로드하는 대신, 스트림릿 재실행 시 폰트가 적용되도록 합니다.
     # 필요한 경우, 터미널에서 `rm -rf ~/.cache/matplotlib` 실행 후 재실행.
 clear_matplotlib_cache()
 
@@ -36,25 +31,31 @@ clear_matplotlib_cache()
 st.markdown(
     """
     <style>
-    /* 전체 배경을 검정색으로 하고 은하수 느낌 패턴 추가 */
+    /* 전체 배경을 검정색으로 하고 은하 이미지 추가 */
     body {
         background-color: #000000; /* 완전 검정 */
-        background-image: url('https://www.transparenttextures.com/patterns/stardust.png'); /* 별 먼지 패턴 */
-        background-repeat: repeat;
-        background-size: 150px 150px; /* 패턴 크기 조절 */
+        background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/ESO_-_The_Milky_Way_over_Paranal_%28by_Y.Beletsky%29.jpg/1280px-ESO_-_The_Milky_Way_over_Paranal_%28by_Y.Beletsky%29.jpg'); /* 은하 이미지 URL */
+        background-repeat: no-repeat; /* 이미지 반복 안 함 */
+        background-size: cover; /* 화면 전체를 덮도록 크기 조절 */
+        background-position: center center; /* 이미지를 중앙에 배치 */
+        background-attachment: fixed; /* 스크롤해도 배경 고정 */
     }
     
     /* 전체 앱 컨테이너의 배경도 투명하게 또는 어둡게 */
     .stApp {
-        background-color: rgba(0, 0, 0, 0); /* 투명하게 */
+        background-color: rgba(0, 0, 0, 0.5); /* 반투명 검정으로 콘텐츠가 더 잘 보이게 */
         color: white; /* 기본 글자색 흰색으로 */
+        padding: 20px; /* 내부 여백 추가 */
+        border-radius: 10px; /* 모서리 둥글게 */
     }
     
     /* 사이드바 배경 및 글자색 */
     .stSidebar {
-        background-color: #1a1a2e; /* 어두운 남색 계열 */
+        background-color: rgba(26, 26, 46, 0.8); /* 어두운 남색 계열, 반투명 */
         color: white;
         border-right: 1px solid #0f0f2a;
+        padding: 15px; /* 사이드바 내부 여백 */
+        border-radius: 10px; /* 사이드바 모서리 둥글게 */
     }
     .stSidebar .stNumberInput, .stSidebar .stSlider {
         color: #b0e0e6; /* 밝은 청록색 */
@@ -79,13 +80,14 @@ st.markdown(
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         font-size: 3em;
-        text-shadow: 0 0 10px rgba(135, 206, 250, 0.5); /* 그림자 효과 */
+        text-shadow: 0 0 15px rgba(135, 206, 250, 0.7); /* 그림자 효과 강화 */
+        padding-bottom: 10px; /* 제목 아래 여백 */
     }
 
     /* 다른 제목 (h2, h3) 색상 */
     h2, h3 {
         color: #ADD8E6; /* 연한 파란색 */
-        text-shadow: 0 0 5px rgba(173, 216, 230, 0.3);
+        text-shadow: 0 0 8px rgba(173, 216, 230, 0.5);
     }
     
     /* 일반 텍스트 및 정보 상자 */
@@ -93,8 +95,10 @@ st.markdown(
         color: #E0FFFF; /* 밝은 하늘색 */
     }
     .stInfo {
-        background-color: #0A1128; /* 정보 상자 배경색 (더 어둡게) */
+        background-color: rgba(10, 17, 40, 0.7); /* 정보 상자 배경색 (더 어둡고 반투명) */
         border-left: 5px solid #4682B4;
+        border-radius: 5px;
+        padding: 10px;
     }
 
     /* 슬라이더 값 표시 색상 */
@@ -105,8 +109,9 @@ st.markdown(
     /* 인풋 필드 글자색 */
     .stNumberInput input {
         color: #b0e0e6; /* 밝은 청록색 */
-        background-color: #0f0f2a; /* 어두운 배경 */
+        background-color: rgba(15, 15, 42, 0.7); /* 어두운 배경, 반투명 */
         border: 1px solid #4682B4;
+        border-radius: 5px;
     }
     
     /* 체크박스 색상 */
@@ -118,6 +123,11 @@ st.markdown(
     }
     .stCheckbox label span {
         color: #E0FFFF; /* 체크박스 텍스트 색상 */
+    }
+
+    /* 구분선 색상 */
+    hr {
+        border-top: 1px dashed #4682B4; /* 점선 스타일의 파란색 구분선 */
     }
 
     </style>
