@@ -107,7 +107,7 @@ st.markdown(
     .stCheckbox > label > div:first-child {
         border-color: #87CEFA !important;
     }
-    .stCheckbox > label > div:first_child > div {
+    .stCheckbox > label > div:first-child > div {
         background-color: #4682B4 !important;
     }
     .stCheckbox label span {
@@ -118,28 +118,50 @@ st.markdown(
         border-top: 1px dashed #4682B4;
     }
 
-    /* 메인 페이지 버튼 스타일 */
-    .main-button {
+    /* 메인 페이지 버튼 스타일 (배경색 그라데이션 및 호버 효과 강화) */
+    .stButton > button {
         display: block;
-        width: 80%;
+        width: 100%; /* use_container_width와 함께 작동 */
         padding: 20px;
         margin: 20px auto;
         font-size: 1.5em;
         font-weight: bold;
-        color: white;
-        background-color: #2a2a4a;
         border: 2px solid #4682B4;
         border-radius: 10px;
         cursor: pointer;
         transition: all 0.3s ease;
         text-align: center;
-        text-decoration: none; /* 링크 밑줄 제거 */
+        text-decoration: none;
+
+        /* 버튼 배경에 그라데이션 적용 */
+        background: linear-gradient(to right, #1A2A4A, #2A3A5A, #3A4A6A); /* 어둡고 깊은 파란색 그라데이션 */
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 기본 그림자 */
     }
-    .main-button:hover {
-        background-color: #4682B4;
-        color: white;
+    
+    .stButton > button:hover {
+        /* hover 시 배경 그라데이션을 더 밝게 */
+        background: linear-gradient(to right, #4682B4, #6A9CC9, #8DBBDD); /* 밝은 파란색 그라데이션 */
         transform: translateY(-3px);
-        box-shadow: 0 5px 15px rgba(70, 130, 180, 0.5);
+        box-shadow: 0 6px 20px rgba(70, 130, 180, 0.7); /* 더 강한 그림자 효과 */
+    }
+
+    /* Streamlit이 버튼 텍스트를 렌더링하는 방식 때문에 추가적인 CSS 필요 */
+    /* st.button으로 생성된 버튼의 span 요소에 스타일 적용 */
+    .stButton > button > div > span {
+        background-image: linear-gradient(to right, #00BFFF, #87CEFA, #ADD8E6); /* 글자색 그라데이션 */
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        color: transparent; /* fallback */
+        text-shadow: 0 0 8px rgba(135, 206, 250, 0.6); /* 글자 그림자 효과 */
+        font-weight: bold;
+    }
+
+    .stButton > button:hover > div > span {
+        background-image: none; /* hover 시 글자 그라데이션 제거 */
+        -webkit-background-clip: unset;
+        -webkit-text-fill-color: unset;
+        color: white; /* hover 시 글자색 흰색으로 변경 */
+        text-shadow: none; /* 그림자 효과 제거 */
     }
     </style>
     """,
@@ -233,14 +255,16 @@ def main_page():
     col1, col2 = st.columns(2)
 
     with col1:
-        if st.button("🚀 중력 마이크로렌징 시뮬레이션 시작", key="start_simulation_button"):
+        st.button("🚀 중력 마이크로렌징 시뮬레이션 시작", key="start_simulation_button", use_container_width=True)
+        if st.session_state.start_simulation_button:
             st.session_state.page = 'simulation'
-            st.rerun() # 페이지 전환을 위해 rerunning
+            st.rerun()
 
     with col2:
-        if st.button("📚 시뮬레이션 설명 보기", key="view_explanation_button"):
+        st.button("📚 시뮬레이션 설명 보기", key="view_explanation_button", use_container_width=True)
+        if st.session_state.view_explanation_button:
             st.session_state.page = 'explanation'
-            st.rerun() # 페이지 전환을 위해 rerunning
+            st.rerun()
 
 # --- 2. 시뮬레이션 페이지 함수 ---
 def simulation_page():
@@ -367,7 +391,13 @@ def explanation_page():
 
 # --- 앱의 진입점 (페이지 라우팅) ---
 if 'page' not in st.session_state:
-    st.session_state.page = 'main' # 초기 페이지 설정
+    st.session_state.page = 'main'
+
+if 'start_simulation_button' not in st.session_state:
+    st.session_state.start_simulation_button = False
+if 'view_explanation_button' not in st.session_state:
+    st.session_state.view_explanation_button = False
+
 
 if st.session_state.page == 'main':
     main_page()
