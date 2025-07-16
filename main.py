@@ -1,10 +1,3 @@
-네, 알겠습니다. Streamlit 앱의 첫 화면(메인 페이지)에 **'중력 렌즈 설명' 버튼을 추가**하여 사용자가 중력 마이크로렌징에 대한 기본적인 설명을 볼 수 있도록 코드를 업데이트해 드릴게요.
-
-이제 메인 페이지에 '중력 마이크로렌징 시뮬레이션 시작'과 '시뮬레이션 설명 보기' 버튼 옆에 새로운 '중력 렌즈 설명' 버튼이 생길 겁니다. 이 버튼을 클릭하면 중력 렌즈의 개념에 대한 페이지로 이동하게 됩니다.
-
------
-
-```python
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
@@ -499,4 +492,3 @@ elif st.session_state.page == 'gravitational_lens_explanation': # 새로운 페�
 
 # 하단 저작권 표시
 st.caption("© 2025 중력 마이크로렌징 시뮬레이터")
-```
