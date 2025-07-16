@@ -30,7 +30,7 @@ st.markdown(
     /* 전체 바디 배경 설정 */
     body {
         background-color: #000000; /* 어두운 배경색 */
-        background-image: url('https://upload.wikimedia.wikimedia.org/wikipedia/commons/thumb/c/c5/ESO_-_The_Milky_Way_over_Paranal_%28by_Y.Beletsky%29.jpg/1280px-ESO_-_The_Milky_Way_over_Paranal_%28by_Y.Beletsky%29.jpg'); /* 은하수 배경 이미지 */
+        background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/ESO_-_The_Milky_Way_over_Paranal_%28by_Y.Beletsky%29.jpg/1280px-ESO_-_The_Milky_Way_over_Paranal_%28by_Y.Beletsky%29.jpg'); /* 은하수 배경 이미지 */
         background-repeat: no-repeat;
         background-size: cover;
         background-position: center center;
@@ -337,6 +337,20 @@ def simulation_page():
 
     st.sidebar.write("---")
     st.sidebar.info("참고: 이 시뮬레이터의 밝기 곡선은 개념적인 모델에 기반하며, 실제 천체 물리 계산과 다를 수 있습니다.")
+
+    # --- 시뮬레이션 개념 이미지 추가 ---
+    st.subheader("💡 중력 마이크로렌징 개념")
+    st.write("""
+        아래 그림은 **중력 마이크로렌징 현상**이 어떻게 발생하는지 개념적으로 보여줍니다.
+        **렌즈 별**이 우리(관측자)와 **배경 광원 별** 사이를 지나가면서, 렌즈 별의 중력이 광원 별의 빛을 휘게 하여
+        일시적으로 광원 별의 밝기가 증가하는 원리입니다.
+    """)
+    st.image(
+        "https://upload.wikimedia.org/wikipedia/commons/e/e0/GravitationalMicrolensing.gif", # Wikimedia Commons의 개념 GIF 이미지
+        caption="중력 마이크로렌징 개념 (출처: Wikipedia Commons)",
+        use_column_width=True # 컬럼 너비에 맞춰 이미지 크기 조절
+    )
+    st.write("---")
 
     # 밝기 곡선 데이터 계산
     time_points, magnifications = calculate_magnification_data(
