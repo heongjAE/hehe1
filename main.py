@@ -5,63 +5,59 @@ from matplotlib.patches import Circle
 from PIL import Image, ImageDraw
 import platform
 
-# --- 한글 폰트 설정 ---
-if platform.system() == 'Darwin': # Mac
-    plt.rcParams['font.family'] = 'AppleGothic'
-elif platform.system() == 'Windows': # Windows
-    plt.rcParams['font.family'] = 'Malgun Gothic'
-else: # Linux (Ubuntu 등)
-    # Ubuntu의 경우 'NanumGothic' 설치 필요:
-    # sudo apt-get update
-    # sudo apt-get install fonts-nanum-extra
-    plt.rcParams['font.family'] = 'NanumGothic'
-
-plt.rcParams['axes.unicode_minus'] = False # 마이너스 기호 깨짐 방지
-
-# --- 폰트 캐시 삭제 (에러 방지) ---
+# --- 폰트 및 Matplotlib 스타일 설정 ---
 @st.cache_resource
-def clear_matplotlib_cache():
+def setup_matplotlib():
+    # 운영체제에 따라 한글 폰트 설정
+    if platform.system() == 'Darwin': # Mac
+        plt.rcParams['font.family'] = 'AppleGothic'
+    elif platform.system() == 'Windows': # Windows
+        plt.rcParams['font.family'] = 'Malgun Gothic'
+    else: # Linux (Ubuntu 등)
+        # Linux의 경우 'NanumGothic' 설치 필요:
+        # sudo apt-get update
+        # sudo apt-get install fonts-nanum-extra
+        plt.rcParams['font.family'] = 'NanumGothic'
+
+    plt.rcParams['axes.unicode_minus'] = False # 마이너스 기호 깨짐 방지
     plt.style.use('dark_background') # 어두운 배경 스타일 적용
-    # Matplotlib 폰트 캐시를 지웁니다.
-    # 필요한 경우, 터미널에서 `rm -rf ~/.cache/matplotlib` 실행 후 재실행.
-clear_matplotlib_cache()
+
+setup_matplotlib() # 앱 시작 시 한 번만 실행되도록 캐싱
 
 
 # --- 전체 페이지 스타일 설정 (HTML/CSS 인라인 삽입) ---
+# 이 부분은 변경 없음 (스타일은 이미 잘 적용되어 있습니다)
 st.markdown(
     """
     <style>
-    /* 전체 배경을 검정색으로 하고 은하 이미지 추가 */
     body {
-        background-color: #000000; /* 완전 검정 */
-        background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/ESO_-_The_Milky_Way_over_Paranal_%28by_Y.Beletsky%29.jpg/1280px-ESO_-_The_Milky_Way_over_Paranal_%28by_Y.Beletsky%29.jpg'); /* 은하 이미지 URL */
-        background-repeat: no-repeat; /* 이미지 반복 안 함 */
-        background-size: cover; /* 화면 전체를 덮도록 크기 조절 */
-        background-position: center center; /* 이미지를 중앙에 배치 */
-        background-attachment: fixed; /* 스크롤해도 배경 고정 */
+        background-color: #000000;
+        background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/ESO_-_The_Milky_Way_over_Paranal_%28by_Y.Beletsky%29.jpg/1280px-ESO_-_The_Milky_Way_over_Paranal_%28by_Y.Beletsky%29.jpg');
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center center;
+        background-attachment: fixed;
     }
     
-    /* 전체 앱 컨테이너의 배경도 투명하게 또는 어둡게 */
     .stApp {
-        background-color: rgba(0, 0, 0, 0.5); /* 반투명 검정으로 콘텐츠가 더 잘 보이게 */
-        color: white; /* 기본 글자색 흰색으로 */
-        padding: 20px; /* 내부 여백 추가 */
-        border-radius: 10px; /* 모서리 둥글게 */
+        background-color: rgba(0, 0, 0, 0.5);
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
     }
     
-    /* 사이드바 배경 및 글자색 */
     .stSidebar {
-        background-color: rgba(26, 26, 46, 0.8); /* 어두운 남색 계열, 반투명 */
+        background-color: rgba(26, 26, 46, 0.8);
         color: white;
         border-right: 1px solid #0f0f2a;
-        padding: 15px; /* 사이드바 내부 여백 */
-        border-radius: 10px; /* 사이드바 모서리 둥글게 */
+        padding: 15px;
+        border-radius: 10px;
     }
     .stSidebar .stNumberInput, .stSidebar .stSlider {
-        color: #b0e0e6; /* 밝은 청록색 */
+        color: #b0e0e6;
     }
     .stSidebar label {
-        color: #87CEEB; /* 하늘색 */
+        color: #87CEEB;
         font-weight: bold;
     }
     .stSidebar .stButton>button {
@@ -74,60 +70,53 @@ st.markdown(
         color: white;
     }
 
-    /* 제목 (h1) 그라데이션 */
     h1 {
-        background: linear-gradient(to right, #00BFFF, #87CEFA, #4682B4); /* 밝은 파란색 그라데이션 */
+        background: linear-gradient(to right, #00BFFF, #87CEFA, #4682B4);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         font-size: 3em;
-        text-shadow: 0 0 15px rgba(135, 206, 250, 0.7); /* 그림자 효과 강화 */
-        padding-bottom: 10px; /* 제목 아래 여백 */
+        text-shadow: 0 0 15px rgba(135, 206, 250, 0.7);
+        padding-bottom: 10px;
     }
 
-    /* 다른 제목 (h2, h3) 색상 */
     h2, h3 {
-        color: #ADD8E6; /* 연한 파란색 */
+        color: #ADD8E6;
         text-shadow: 0 0 8px rgba(173, 216, 230, 0.5);
     }
     
-    /* 일반 텍스트 및 정보 상자 */
     p, .stMarkdown, .stInfo {
-        color: #E0FFFF; /* 밝은 하늘색 */
+        color: #E0FFFF;
     }
     .stInfo {
-        background-color: rgba(10, 17, 40, 0.7); /* 정보 상자 배경색 (더 어둡고 반투명) */
+        background-color: rgba(10, 17, 40, 0.7);
         border-left: 5px solid #4682B4;
         border-radius: 5px;
         padding: 10px;
     }
 
-    /* 슬라이더 값 표시 색상 */
     .stSlider > div > div > div > div {
-        color: #87CEFA; /* 밝은 파란색 */
+        color: #87CEFA;
     }
     
-    /* 인풋 필드 글자색 */
     .stNumberInput input {
-        color: #b0e0e6; /* 밝은 청록색 */
-        background-color: rgba(15, 15, 42, 0.7); /* 어두운 배경, 반투명 */
+        color: #b0e0e6;
+        background-color: rgba(15, 15, 42, 0.7);
         border: 1px solid #4682B4;
         border-radius: 5px;
     }
     
-    /* 체크박스 색상 */
     .stCheckbox > label > div:first-child {
-        border-color: #87CEFA !important; /* 체크박스 테두리 */
+        border-color: #87CEFA !important;
     }
     .stCheckbox > label > div:first-child > div {
-        background-color: #4682B4 !important; /* 체크박스 선택 시 */
+        background-color: #4682B4 !important;
     }
     .stCheckbox label span {
-        color: #E0FFFF; /* 체크박스 텍스트 색상 */
+        color: #E0FFFF;
     }
 
-    /* 구분선 색상 */
     hr {
-        border-top: 1px dashed #4682B4; /* 점선 스타일의 파란색 구분선 */
+        border-top: 1px dashed #4682B4;
     }
 
     </style>
@@ -156,7 +145,7 @@ source_mass = st.sidebar.number_input("질량 (태양 질량)", min_value=0.1, m
 st.sidebar.subheader("렌즈 별 (Lens Star)")
 lens_mass = st.sidebar.number_input("질량 (태양 질량)", min_value=0.1, max_value=5.0, value=0.5, step=0.1)
 lens_velocity = st.sidebar.slider("상대 속도 (km/s)", min_value=1.0, max_value=100.0, value=10.0, step=1.0)
-impact_parameter = st.sidebar.slider("충격 매개변수 (Einstein Radius 단위)", min_value=0.0, max_value=2.0, value=0.5, step=0.05)
+impact_parameter = st.sidebar.slider("충격 매개변수", min_value=0.0, max_value=2.0, value=0.5, step=0.05)
 
 
 # 행성 설정 (선택 사항)
@@ -167,35 +156,34 @@ if has_planet:
     planet_orbit_radius = st.sidebar.slider("행성 궤도 반지름 (Einstein Radius 단위)", min_value=0.01, max_value=3.0, value=1.0, step=0.01)
     planet_phase = st.sidebar.slider("행성 초기 위상 (도)", min_value=0, max_value=360, value=0, step=10)
 else:
-    planet_mass_ratio = 0
-    planet_orbit_radius = 0
+    # 행성이 없을 때 기본값 설정 (명시적으로)
+    planet_mass_ratio = 0.0
+    planet_orbit_radius = 0.0
     planet_phase = 0
 
 st.sidebar.write("---")
 st.sidebar.info("참고: 이 시뮬레이터의 밝기 곡선과 이미지 시뮬레이션은 개념적인 모델에 기반하며, 실제 천체 물리 계산과 다를 수 있습니다.")
 
 # --- 3. 시뮬레이션 로직 (가상 모델) ---
-
-# 시간 축 (일)
-time_points = np.linspace(-15, 15, 300) # -15일에서 +15일까지 300개 지점
-
-# 가상 밝기 계산 함수 (실제 마이크로렌징 수식 아님)
-def calculate_magnification(t, lens_m, planet_m_ratio, planet_orb, phase, velocity, impact_param, has_p):
+# 함수를 캐싱하여 동일 입력에 대한 재계산 방지
+@st.cache_data
+def calculate_magnification_data(lens_m, planet_m_ratio, planet_orb, phase, velocity, impact_param, has_p):
+    time_points = np.linspace(-15, 15, 300) # 시간 축 (일)
+    
     # 이것은 매우 단순화된 가상 모델입니다.
-    magnification = 1.0 + np.exp(-(t / (50 / velocity))**2) * (lens_m * 0.5)
+    magnification = 1.0 + np.exp(-(time_points / (50 / velocity))**2) * (lens_m * 0.5)
 
     if has_p and planet_m_ratio > 0:
-        planet_influence_time = t - (planet_orb * np.cos(np.deg2rad(phase))) / (velocity / 10)
+        planet_influence_time = time_points - (planet_orb * np.cos(np.deg2rad(phase))) / (velocity / 10)
         magnification += np.exp(-( (planet_influence_time - 2)**2 / (0.5 + planet_m_ratio * 100)) ) * (planet_m_ratio * 50)
         
         if impact_param < 0.1:
             magnification *= (1 + (0.5 - impact_param) * 0.5)
 
-    return magnification
+    return time_points, magnification
 
 # 밝기 계산
-magnifications = calculate_magnification(
-    time_points,
+time_points, magnifications = calculate_magnification_data(
     lens_mass,
     planet_mass_ratio,
     planet_orbit_radius,
@@ -209,23 +197,27 @@ magnifications = calculate_magnification(
 # --- 4. 밝기 곡선 그래프 그리기 ---
 st.subheader("밝기 곡선")
 
-fig_light_curve, ax_light_curve = plt.subplots(figsize=(10, 5))
-ax_light_curve.plot(time_points, magnifications, label="광원 별 밝기", color='#87CEEB') # 그래프 선 색상 변경
-ax_light_curve.set_xlabel("시간 (일)", fontsize=12)
-ax_light_curve.set_ylabel("상대 밝기 / 증폭률", fontsize=12)
-ax_light_curve.set_title("중력 마이크로렌징 밝기 곡선", fontsize=14)
-ax_light_curve.grid(True, linestyle='--', alpha=0.7, color='#4682B4') # 그리드 색상 변경
-ax_light_curve.set_ylim(min(0.8, np.min(magnifications) * 0.9), max(2.5, np.max(magnifications) * 1.1))
-ax_light_curve.legend(labelcolor='white') # 범례 글자색 흰색
-# Matplotlib 텍스트 색상 수동 조정 (plt.style.use('dark_background')가 처리 못하는 부분)
-ax_light_curve.tick_params(axis='x', colors='white')
-ax_light_curve.tick_params(axis='y', colors='white')
-ax_light_curve.xaxis.label.set_color('white')
-ax_light_curve.yaxis.label.set_color('white')
-ax_light_curve.title.set_color('white')
+# 그래프 생성 함수 (캐싱하여 재렌더링 효율화)
+@st.cache_resource
+def plot_light_curve(time_points, magnifications):
+    fig, ax = plt.subplots(figsize=(10, 5))
+    ax.plot(time_points, magnifications, label="광원 별 밝기", color='#87CEEB')
+    ax.set_xlabel("시간 (일)", fontsize=12)
+    ax.set_ylabel("상대 밝기 / 증폭률", fontsize=12)
+    ax.set_title("중력 마이크로렌징 밝기 곡선", fontsize=14)
+    ax.grid(True, linestyle='--', alpha=0.7, color='#4682B4')
+    ax.set_ylim(min(0.8, np.min(magnifications) * 0.9), max(2.5, np.max(magnifications) * 1.1))
+    ax.legend(labelcolor='white')
+    ax.tick_params(axis='x', colors='white')
+    ax.tick_params(axis='y', colors='white')
+    ax.xaxis.label.set_color('white')
+    ax.yaxis.label.set_color('white')
+    ax.title.set_color('white')
+    return fig
 
-
+fig_light_curve = plot_light_curve(time_points, magnifications)
 st.pyplot(fig_light_curve)
+plt.close(fig_light_curve) # 중요: 그래프 객체를 닫아 메모리 누수 방지
 
 st.write("---")
 
@@ -238,28 +230,25 @@ st.write("""
     아인슈타인 링과 같은 형태로 왜곡될 수 있습니다.
 """)
 
-# 이미지 생성 함수
-def create_microlensing_image(impact_param, resolution=400):
+# 이미지 생성 함수 (캐싱하여 재렌더링 효율화)
+@st.cache_resource
+def create_microlensing_image_cached(impact_param, resolution=400):
     fig, ax = plt.subplots(figsize=(6, 6), dpi=100)
     ax.set_xlim(-1.5, 1.5)
     ax.set_ylim(-1.5, 1.5)
     ax.set_aspect('equal')
-    ax.axis('off') # 축 숨기기
+    ax.axis('off')
 
-    # 배경색 (Matplotlib figure의 배경을 검정색으로 설정)
     fig.set_facecolor('black')
     ax.set_facecolor('black')
 
-    # 광원 별 (배경)
     source_radius = 0.1
-    source_color = '#FFFF00' # 밝은 노란색
+    source_color = '#FFFF00'
 
-    # 렌즈 별 (중앙)
     lens_radius = 0.03
-    lens_color = 'white' # 렌즈 별을 흰색 점으로 표시
+    lens_color = 'white'
 
-    # 충격 매개변수에 따른 광원 별의 왜곡된 모습 (간단한 모델)
-    if impact_param < 0.1: # 렌즈에 거의 정렬될 때
+    if impact_param < 0.1:
         ring_radius = 0.5 + (0.1 - impact_param) * 2
         
         img_size = resolution
@@ -268,13 +257,9 @@ def create_microlensing_image(impact_param, resolution=400):
         
         center = img_size // 2
         
-        # PIL을 이용한 아인슈타인 링 (밝기, 흐림 효과는 Matplotlib으로 다시 렌더링될 때 한계가 있음)
-        # 더 나은 렌더링을 위해선 외부 이미지 라이브러리(ex. OpenCV) 또는 GLSL 셰이더 사용이 적합
-        # 여기서는 단순히 외곽선만으로 링 효과를 냅니다.
         for i in range(20):
             radius = ring_radius * (img_size / 2) * (1 - i*0.02)
-            alpha_val = int(255 * (1 - i/20)**2) # 알파값은 PIL draw.ellipse에서 직접 반영 안됨
-            current_color = (255, 255, 0, alpha_val) # RGBa
+            current_color = (255, 255, 0, int(255 * (1 - i/20)**2))
             draw.ellipse((center - radius, center - radius, center + radius, center + radius), 
                          outline=(current_color[0], current_color[1], current_color[2]), width=max(1, int(i/2)))
 
@@ -282,27 +267,25 @@ def create_microlensing_image(impact_param, resolution=400):
                       center + ring_radius * (img_size / 2) * 0.9, center + ring_radius * (img_size / 2) * 0.9), 
                      outline=source_color, width=max(1, int(img_size / 100)))
 
-        ax.imshow(np.array(img), extent=[-1.5, 1.5, -1.5, 1.5], zorder=0) # 배경 이미지로 깔기
+        ax.imshow(np.array(img), extent=[-1.5, 1.5, -1.5, 1.5], zorder=0)
         
-    elif impact_param < 0.5: # 렌즈에 가까울 때
-        # 길게 늘어난 초승달 모양 또는 두 개의 이미지
+    elif impact_param < 0.5:
         circle1 = Circle((source_radius * 2 * (1 - impact_param), 0), source_radius * 1.5 * (1 - impact_param/0.5), color=source_color, alpha=0.8)
         ax.add_patch(circle1)
         circle2 = Circle((-source_radius * 1 * (1 - impact_param), 0), source_radius * 0.5 * (1 - impact_param/0.5), color=source_color, alpha=0.5)
         ax.add_patch(circle2)
-    else: # 렌즈에서 멀리 떨어져 있을 때 (거의 왜곡 없음)
+    else:
         circle = Circle((0, 0), source_radius, color=source_color)
         ax.add_patch(circle)
     
-    # 렌즈 별 (항상 중앙에 표시)
     lens_circle = Circle((0, 0), lens_radius, color=lens_color, zorder=10)
     ax.add_patch(lens_circle)
     
     return fig
 
-# 이미지 시뮬레이션 생성 및 표시
-fig_image_sim = create_microlensing_image(impact_parameter)
+fig_image_sim = create_microlensing_image_cached(impact_parameter)
 st.pyplot(fig_image_sim)
+plt.close(fig_image_sim) # 중요: 그래프 객체를 닫아 메모리 누수 방지
 
 st.write("---")
 
@@ -312,7 +295,7 @@ st.write(f"""
 - **렌즈 별 질량:** {lens_mass} 태양 질량
 - **광원 별 질량:** {source_mass} 태양 질량
 - **렌즈의 상대 속도:** {lens_velocity} km/s
-- **충격 매개변수:** {impact_parameter} (렌즈와 광원의 가장 가까운 거리, 아인슈타인 반경 대비)
+- **충격 매개변수:** {impact_parameter} (렌즈와 광원의 가장 가까운 거리)
 """)
 
 if has_planet:
