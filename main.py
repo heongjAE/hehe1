@@ -107,7 +107,7 @@ st.markdown(
     .stCheckbox > label > div:first-child {
         border-color: #87CEFA !important;
     }
-    .stCheckbox > label > div:first-child > div {
+    .stCheckbox > label > div:first_child > div {
         background-color: #4682B4 !important;
     }
     .stCheckbox label span {
@@ -126,49 +126,20 @@ st.markdown(
         margin: 20px auto;
         font-size: 1.5em;
         font-weight: bold;
-        background-color: #2a2a4a; /* 버튼 배경색은 유지 */
+        color: white;
+        background-color: #2a2a4a;
         border: 2px solid #4682B4;
         border-radius: 10px;
         cursor: pointer;
         transition: all 0.3s ease;
         text-align: center;
         text-decoration: none; /* 링크 밑줄 제거 */
-
-        /* 글자 그라데이션 추가 */
-        background-image: linear-gradient(to right, #00BFFF, #87CEFA, #ADD8E6); /* 밝은 파란색 계열 그라데이션 */
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        color: transparent; /* fallback for browsers that don't support -webkit-text-fill-color */
-        text-shadow: 0 0 8px rgba(135, 206, 250, 0.6); /* 그림자 효과 추가 */
     }
     .main-button:hover {
         background-color: #4682B4;
-        /* hover 시 글자색을 흰색으로 변경하여 대비를 높임 */
-        background-image: none; /* 그라데이션 제거 */
-        -webkit-background-clip: unset;
-        -webkit-text-fill-color: unset;
-        color: white; /* 글자색 흰색으로 */
+        color: white;
         transform: translateY(-3px);
         box-shadow: 0 5px 15px rgba(70, 130, 180, 0.5);
-    }
-
-    /* Streamlit이 버튼 텍스트를 렌더링하는 방식 때문에 추가적인 CSS 필요 */
-    /* st.button으로 생성된 버튼의 span 요소에 스타일 적용 */
-    .stButton > button > div > span {
-        background-image: linear-gradient(to right, #00BFFF, #87CEFA, #ADD8E6); /* 밝은 파란색 계열 그라데이션 */
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        color: transparent; /* fallback */
-        text-shadow: 0 0 8px rgba(135, 206, 250, 0.6); /* 그림자 효과 추가 */
-        font-weight: bold; /* 굵게 */
-    }
-
-    .stButton > button:hover > div > span {
-        background-image: none;
-        -webkit-background-clip: unset;
-        -webkit-text-fill-color: unset;
-        color: white; /* hover 시 글자색 흰색으로 */
-        text-shadow: none; /* 그림자 효과 제거 */
     }
     </style>
     """,
@@ -262,19 +233,14 @@ def main_page():
     col1, col2 = st.columns(2)
 
     with col1:
-        # st.button은 자체적으로 스타일링이 어려워, CSS로 내부 span을 타겟팅합니다.
-        st.button("🚀 중력 마이크로렌징 시뮬레이션 시작", key="start_simulation_button", use_container_width=True)
-        # 이 버튼 클릭 시 페이지 이동
-        if st.session_state.start_simulation_button: # 키를 직접 참조하여 클릭 감지
+        if st.button("🚀 중력 마이크로렌징 시뮬레이션 시작", key="start_simulation_button"):
             st.session_state.page = 'simulation'
-            st.rerun()
+            st.rerun() # 페이지 전환을 위해 rerunning
 
     with col2:
-        st.button("📚 시뮬레이션 설명 보기", key="view_explanation_button", use_container_width=True)
-        # 이 버튼 클릭 시 페이지 이동
-        if st.session_state.view_explanation_button: # 키를 직접 참조하여 클릭 감지
+        if st.button("📚 시뮬레이션 설명 보기", key="view_explanation_button"):
             st.session_state.page = 'explanation'
-            st.rerun()
+            st.rerun() # 페이지 전환을 위해 rerunning
 
 # --- 2. 시뮬레이션 페이지 함수 ---
 def simulation_page():
@@ -402,13 +368,6 @@ def explanation_page():
 # --- 앱의 진입점 (페이지 라우팅) ---
 if 'page' not in st.session_state:
     st.session_state.page = 'main' # 초기 페이지 설정
-
-# 각 버튼 클릭 감지 로직을 `st.session_state`를 통해 처리
-if 'start_simulation_button' not in st.session_state:
-    st.session_state.start_simulation_button = False
-if 'view_explanation_button' not in st.session_state:
-    st.session_state.view_explanation_button = False
-
 
 if st.session_state.page == 'main':
     main_page()
