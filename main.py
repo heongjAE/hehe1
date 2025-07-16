@@ -1,3 +1,10 @@
+네, 알겠습니다. Streamlit 앱의 첫 화면(메인 페이지)에 **'중력 렌즈 설명' 버튼을 추가**하여 사용자가 중력 마이크로렌징에 대한 기본적인 설명을 볼 수 있도록 코드를 업데이트해 드릴게요.
+
+이제 메인 페이지에 '중력 마이크로렌징 시뮬레이션 시작'과 '시뮬레이션 설명 보기' 버튼 옆에 새로운 '중력 렌즈 설명' 버튼이 생길 겁니다. 이 버튼을 클릭하면 중력 렌즈의 개념에 대한 페이지로 이동하게 됩니다.
+
+-----
+
+```python
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
@@ -258,7 +265,7 @@ def set_page(page_name: str):
     Streamlit 세션 상태를 업데이트하여 페이지를 전환합니다.
 
     Args:
-        page_name (str): 전환할 페이지의 이름 ('main', 'simulation', 'explanation').
+        page_name (str): 전환할 페이지의 이름 ('main', 'simulation', 'explanation', 'gravitational_lens_explanation').
     """
     st.session_state.page = page_name
 
@@ -269,8 +276,8 @@ def main_page():
     st.write("환영합니다! 아래 버튼을 눌러 시뮬레이션을 시작하거나 설명을 확인하세요.")
     st.markdown("---")
 
-    # 두 개의 컬럼으로 버튼 배치
-    col1, col2 = st.columns(2)
+    # 세 개의 컬럼으로 버튼 배치
+    col1, col2, col3 = st.columns(3)
 
     with col1:
         st.button(
@@ -283,22 +290,42 @@ def main_page():
 
     with col2:
         st.button(
-            "📚 시뮬레이션 설명 보기",
+            "💡 시뮬레이션 설명 보기",
             key="view_explanation_button",
             on_click=set_page,
             args=('explanation',), # 콜백 함수에 'explanation' 페이지 이름 전달
+            use_container_width=True
+        )
+    
+    with col3:
+        st.button(
+            "🔭 중력 렌즈 설명 보기",
+            key="view_gravitational_lens_explanation_button",
+            on_click=set_page,
+            args=('gravitational_lens_explanation',), # 새로운 페이지 이름 전달
             use_container_width=True
         )
 
 # --- 2. 시뮬레이션 페이지 함수 ---
 def simulation_page():
     """중력 마이크로렌징 밝기 곡선 시뮬레이션 페이지를 렌더링합니다."""
-    st.title("✨ 중력 마이크로렌징 시뮬레이터")
+    st.title("🌟 중력 마이크로렌징 시뮬레이터")
     st.write("""
         이 앱은 **중력 마이크로렌징** 현상으로 인한 광원 별의 밝기 변화를 시뮬레이션합니다.
         아래 설정을 변경하여 밝기 곡선이 어떻게 변하는지 확인해 보세요!
     """)
 
+    st.markdown("---")
+
+    st.subheader("🔭 중력 마이크로렌징 개념")
+    st.write("""
+        아래 GIF는 **중력 렌즈 별(파란색)**이 **배경 광원 별(노란색)** 앞을 지나갈 때,
+        렌즈 별의 중력이 광원 별의 빛을 휘게 하여 우리가 보는 **광원 별의 위치가 일시적으로 변하고 밝기가 증가**하는 모습을 보여줍니다.
+        (실제 시야와는 다를 수 있으며 개념적 이해를 돕기 위한 이미지입니다.)
+    """)
+    st.image("https://upload.wikimedia.org/wikipedia/commons/e/e0/Gravitational_Microlensing.gif", 
+             caption="중력 마이크로렌징 개념 시각화", 
+             use_column_width=True)
     st.write("---")
 
     # --- 시뮬레이션 설정 입력 받기 (사이드바) ---
@@ -345,7 +372,7 @@ def simulation_page():
     )
 
     # --- 배경별 광도 변화 (밝기 곡선) 그래프 표시 ---
-    st.subheader("📈 배경별 광도 변화 (밝기 곡선)")
+    st.subheader("✨ 배경별 광도 변화 (밝기 곡선)")
     st.write("""
         이 그래프는 렌즈 별이 배경 광원 별 앞을 지나갈 때,
         **배경 광원 별의 밝기가 시간 경과에 따라 어떻게 변하는지** 보여줍니다.
@@ -360,7 +387,7 @@ def simulation_page():
 
     # 메인으로 돌아가기 버튼
     st.button(
-        "⬅️ 메인 화면으로 돌아가기",
+        "🏠 메인 화면으로 돌아가기",
         key="back_to_main_sim",
         on_click=set_page,
         args=('main',)
@@ -369,7 +396,7 @@ def simulation_page():
 # --- 3. 시뮬레이션 설명 페이지 함수 ---
 def explanation_page():
     """중력 마이크로렌징에 대한 설명을 제공하는 페이지를 렌더링합니다."""
-    st.title("📚 시뮬레이션 설명")
+    st.title("💡 시뮬레이션 설명")
     st.write("""
     이 페이지에서는 중력 마이크로렌징 시뮬레이터의 작동 원리와 각 매개변수에 대한 자세한 설명을 제공합니다.
     """)
@@ -403,11 +430,57 @@ def explanation_page():
     st.write("---")
     # 메인으로 돌아가기 버튼
     st.button(
-        "⬅️ 메인 화면으로 돌아가기",
+        "🏠 메인 화면으로 돌아가기",
         key="back_to_main_exp",
         on_click=set_page,
         args=('main',)
     )
+
+# --- 4. 중력 렌즈 설명 페이지 함수 (새로 추가) ---
+def gravitational_lens_explanation_page():
+    """중력 렌즈 현상에 대한 설명을 제공하는 페이지를 렌더링합니다."""
+    st.title("🔭 중력 렌즈 설명")
+    st.write("""
+    이 페이지에서는 중력 렌즈 현상에 대해 더 자세히 알아봅니다.
+    """)
+    st.markdown("---")
+
+    st.subheader("중력 렌즈란 무엇인가요?")
+    st.write("""
+    **중력 렌즈(Gravitational Lens)**는 아인슈타인의 **일반 상대성 이론**에 의해 예측되는 현상으로,
+    아주 무거운 천체(예: 거대 은하, 은하단, 또는 블랙홀)의 강력한 중력이 그 뒤에 있는 멀리 떨어진 광원에서 오는 빛을 휘게 만들면서,
+    마치 거대한 렌즈처럼 빛을 모으거나 분산시키는 효과를 내는 것을 말합니다.
+    """)
+    st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Gravitational_lensing.gif/600px-Gravitational_lensing.gif",
+             caption="중력 렌즈 효과 개념 (출처: Wikipedia)",
+             use_column_width=True)
+    st.write("""
+    이 현상으로 인해 멀리 있는 광원의 이미지가 **왜곡되거나, 여러 개로 보이거나, 밝기가 증폭**되어 보일 수 있습니다.
+    중력 렌즈는 그 규모에 따라 크게 세 가지로 분류됩니다:
+    """)
+    st.markdown("""
+    - **강한 렌즈(Strong Lensing):** 빛이 크게 왜곡되어 **아인슈타인 고리(Einstein Ring)**, **다중 이미지(Multiple Images)**, 또는 **호(Arcs)**와 같은 눈에 띄는 현상을 만들어냅니다. 이는 주로 은하나 은하단과 같은 거대한 질량에 의해 발생합니다.
+    - **약한 렌즈(Weak Lensing):** 빛의 왜곡이 미미하여 눈으로는 식별하기 어렵지만, 통계적 분석을 통해 배경 은하들의 미세한 형태 변화를 측정할 수 있습니다. 이를 통해 우주 전체의 암흑물질 분포를 연구하는 데 사용됩니다.
+    - **마이크로렌즈(Microlensing):** 빛의 왜곡이 매우 작아 이미지의 형태 변화를 일으키지 않고, 단지 광원의 **밝기만 일시적으로 증폭**시키는 현상입니다. 이는 별이나 행성처럼 작은 질량체에 의해 발생하며, 시뮬레이터에서 다루는 현상입니다.
+    """)
+
+    st.subheader("중력 렌즈는 왜 중요한가요?")
+    st.write("""
+    중력 렌즈 현상은 천문학에서 매우 중요한 도구로 활용됩니다:
+    - **암흑물질 연구:** 우주 질량의 대부분을 차지하지만 직접 볼 수 없는 암흑물질의 분포를 지도화하는 데 사용됩니다.
+    - **멀리 있는 은하 및 퀘이사 발견:** 중력 렌즈에 의해 증폭된 빛 덕분에 평소에는 너무 어두워서 볼 수 없었던 멀리 있는 천체들을 발견하고 연구할 수 있습니다.
+    - **외계 행성 탐색:** 이 시뮬레이터에서 다루는 마이크로렌징 현상을 통해 멀리 떨어진 별 주위의 외계 행성을 발견하는 데 중요한 역할을 합니다.
+    """)
+
+    st.write("---")
+    # 메인으로 돌아가기 버튼
+    st.button(
+        "🏠 메인 화면으로 돌아가기",
+        key="back_to_main_grav_lens_exp",
+        on_click=set_page,
+        args=('main',)
+    )
+
 
 # --- 앱의 진입점 (페이지 라우팅) ---
 # 세션 상태에 'page'가 없으면 'main'으로 초기화
@@ -421,6 +494,9 @@ elif st.session_state.page == 'simulation':
     simulation_page()
 elif st.session_state.page == 'explanation':
     explanation_page()
+elif st.session_state.page == 'gravitational_lens_explanation': # 새로운 페이지 라우팅 추가
+    gravitational_lens_explanation_page()
 
 # 하단 저작권 표시
 st.caption("© 2025 중력 마이크로렌징 시뮬레이터")
+```
