@@ -26,7 +26,6 @@ setup_matplotlib() # 앱 시작 시 한 번만 실행되도록 캐싱
 
 
 # --- 전체 페이지 스타일 설정 (HTML/CSS 인라인 삽입) ---
-# 이 부분은 변경 없음 (스타일은 이미 잘 적용되어 있습니다)
 st.markdown(
     """
     <style>
@@ -108,7 +107,7 @@ st.markdown(
     .stCheckbox > label > div:first-child {
         border-color: #87CEFA !important;
     }
-    .stCheckbox > label > div:first-child > div {
+    .stCheckbox > label > div:first_child > div {
         background-color: #4682B4 !important;
     }
     .stCheckbox label span {
@@ -119,58 +118,38 @@ st.markdown(
         border-top: 1px dashed #4682B4;
     }
 
+    /* 메인 페이지 버튼 스타일 */
+    .main-button {
+        display: block;
+        width: 80%;
+        padding: 20px;
+        margin: 20px auto;
+        font-size: 1.5em;
+        font-weight: bold;
+        color: white;
+        background-color: #2a2a4a;
+        border: 2px solid #4682B4;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+        text-decoration: none; /* 링크 밑줄 제거 */
+    }
+    .main-button:hover {
+        background-color: #4682B4;
+        color: white;
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(70, 130, 180, 0.5);
+    }
     </style>
     """,
     unsafe_allow_html=True
 )
 
-# --- 1. 앱 제목 및 설명 ---
-st.title("✨ 중력 마이크로렌징 시뮬레이터")
-st.write("""
-    이 앱은 **중력 마이크로렌징** 현상으로 인한 광원 별의 밝기 변화를 시뮬레이션하고,
-    렌즈 별에 의한 **광원 별 이미지의 개념적 왜곡**을 보여줍니다.
-    아래 설정을 변경하여 밝기 곡선과 이미지 시뮬레이션이 어떻게 변하는지 확인해 보세요!
-""")
-
-st.write("---")
-
-# --- 2. 시뮬레이션 설정 입력 받기 ---
-st.sidebar.header("설정")
-
-# 광원 별 설정
-st.sidebar.subheader("광원 별 (Source Star)")
-source_mass = st.sidebar.number_input("질량 (태양 질량)", min_value=0.1, max_value=10.0, value=1.0, step=0.1)
-
-# 렌즈 별 설정
-st.sidebar.subheader("렌즈 별 (Lens Star)")
-lens_mass = st.sidebar.number_input("질량 (태양 질량)", min_value=0.1, max_value=5.0, value=0.5, step=0.1)
-lens_velocity = st.sidebar.slider("상대 속도 (km/s)", min_value=1.0, max_value=100.0, value=10.0, step=1.0)
-impact_parameter = st.sidebar.slider("충격 매개변수", min_value=0.0, max_value=2.0, value=0.5, step=0.05)
-
-
-# 행성 설정 (선택 사항)
-st.sidebar.subheader("행성 (Planet - 선택 사항)")
-has_planet = st.sidebar.checkbox("행성 포함", value=False)
-if has_planet:
-    planet_mass_ratio = st.sidebar.slider("행성 질량비 (렌즈 별 질량 대비)", min_value=0.0001, max_value=0.1, value=0.001, format="%.4f")
-    planet_orbit_radius = st.sidebar.slider("행성 궤도 반지름 (Einstein Radius 단위)", min_value=0.01, max_value=3.0, value=1.0, step=0.01)
-    planet_phase = st.sidebar.slider("행성 초기 위상 (도)", min_value=0, max_value=360, value=0, step=10)
-else:
-    # 행성이 없을 때 기본값 설정 (명시적으로)
-    planet_mass_ratio = 0.0
-    planet_orbit_radius = 0.0
-    planet_phase = 0
-
-st.sidebar.write("---")
-st.sidebar.info("참고: 이 시뮬레이터의 밝기 곡선과 이미지 시뮬레이션은 개념적인 모델에 기반하며, 실제 천체 물리 계산과 다를 수 있습니다.")
-
-# --- 3. 시뮬레이션 로직 (가상 모델) ---
-# 함수를 캐싱하여 동일 입력에 대한 재계산 방지
+# --- 시뮬레이션 계산 로직 (캐싱) ---
 @st.cache_data
 def calculate_magnification_data(lens_m, planet_m_ratio, planet_orb, phase, velocity, impact_param, has_p):
-    time_points = np.linspace(-15, 15, 300) # 시간 축 (일)
-    
-    # 이것은 매우 단순화된 가상 모델입니다.
+    time_points = np.linspace(-15, 15, 300)
     magnification = 1.0 + np.exp(-(time_points / (50 / velocity))**2) * (lens_m * 0.5)
 
     if has_p and planet_m_ratio > 0:
@@ -179,25 +158,9 @@ def calculate_magnification_data(lens_m, planet_m_ratio, planet_orb, phase, velo
         
         if impact_param < 0.1:
             magnification *= (1 + (0.5 - impact_param) * 0.5)
-
     return time_points, magnification
 
-# 밝기 계산
-time_points, magnifications = calculate_magnification_data(
-    lens_mass,
-    planet_mass_ratio,
-    planet_orbit_radius,
-    planet_phase,
-    lens_velocity,
-    impact_parameter,
-    has_planet
-)
-
-
-# --- 4. 밝기 곡선 그래프 그리기 ---
-st.subheader("밝기 곡선")
-
-# 그래프 생성 함수 (캐싱하여 재렌더링 효율화)
+# --- Matplotlib 그래프 생성 함수 (캐싱) ---
 @st.cache_resource
 def plot_light_curve(time_points, magnifications):
     fig, ax = plt.subplots(figsize=(10, 5))
@@ -215,22 +178,6 @@ def plot_light_curve(time_points, magnifications):
     ax.title.set_color('white')
     return fig
 
-fig_light_curve = plot_light_curve(time_points, magnifications)
-st.pyplot(fig_light_curve)
-plt.close(fig_light_curve) # 중요: 그래프 객체를 닫아 메모리 누수 방지
-
-st.write("---")
-
-# --- 5. 이미지 시뮬레이션 ---
-st.subheader("이미지 왜곡 시뮬레이션 (개념적)")
-st.write("""
-    아래 이미지는 **렌즈 별(중앙의 검은 점)**이 배경 광원 별의 빛을 휘게 하여
-    어떻게 보일 수 있는지 개념적으로 보여줍니다. 
-    실제 마이크로렌징 현상은 빛을 여러 경로로 휘게 하여 광원 별이 여러 개로 보이거나
-    아인슈타인 링과 같은 형태로 왜곡될 수 있습니다.
-""")
-
-# 이미지 생성 함수 (캐싱하여 재렌더링 효율화)
 @st.cache_resource
 def create_microlensing_image_cached(impact_param, resolution=400):
     fig, ax = plt.subplots(figsize=(6, 6), dpi=100)
@@ -238,35 +185,28 @@ def create_microlensing_image_cached(impact_param, resolution=400):
     ax.set_ylim(-1.5, 1.5)
     ax.set_aspect('equal')
     ax.axis('off')
-
     fig.set_facecolor('black')
     ax.set_facecolor('black')
 
     source_radius = 0.1
     source_color = '#FFFF00'
-
     lens_radius = 0.03
     lens_color = 'white'
 
     if impact_param < 0.1:
         ring_radius = 0.5 + (0.1 - impact_param) * 2
-        
         img_size = resolution
         img = Image.new('RGB', (img_size, img_size), color = 'black')
         draw = ImageDraw.Draw(img)
-        
         center = img_size // 2
-        
         for i in range(20):
             radius = ring_radius * (img_size / 2) * (1 - i*0.02)
             current_color = (255, 255, 0, int(255 * (1 - i/20)**2))
             draw.ellipse((center - radius, center - radius, center + radius, center + radius), 
                          outline=(current_color[0], current_color[1], current_color[2]), width=max(1, int(i/2)))
-
         draw.ellipse((center - ring_radius * (img_size / 2) * 0.9, center - ring_radius * (img_size / 2) * 0.9,
                       center + ring_radius * (img_size / 2) * 0.9, center + ring_radius * (img_size / 2) * 0.9), 
                      outline=source_color, width=max(1, int(img_size / 100)))
-
         ax.imshow(np.array(img), extent=[-1.5, 1.5, -1.5, 1.5], zorder=0)
         
     elif impact_param < 0.5:
@@ -283,40 +223,157 @@ def create_microlensing_image_cached(impact_param, resolution=400):
     
     return fig
 
-fig_image_sim = create_microlensing_image_cached(impact_parameter)
-st.pyplot(fig_image_sim)
-plt.close(fig_image_sim) # 중요: 그래프 객체를 닫아 메모리 누수 방지
 
-st.write("---")
+# --- 1. 메인 페이지 함수 ---
+def main_page():
+    st.title("🌌 우주 시뮬레이터")
+    st.write("환영합니다! 아래 버튼을 눌러 시뮬레이션을 시작하거나 설명을 확인하세요.")
+    st.markdown("---")
 
-# --- 6. 시뮬레이션 설명 (텍스트) ---
-st.subheader("시뮬레이션 설명")
-st.write(f"""
-- **렌즈 별 질량:** {lens_mass} 태양 질량
-- **광원 별 질량:** {source_mass} 태양 질량
-- **렌즈의 상대 속도:** {lens_velocity} km/s
-- **충격 매개변수:** {impact_parameter} (렌즈와 광원의 가장 가까운 거리)
-""")
+    col1, col2 = st.columns(2)
 
-if has_planet:
-    st.write(f"""
-    - **행성 포함:** 예
-    - **행성 질량비:** {planet_mass_ratio:.4f} (렌즈 별 질량 대비)
-    - **행성 궤도 반지름:** {planet_orbit_radius} (아인슈타인 반경 대비)
-    - **행성 초기 위상:** {planet_phase}도
+    with col1:
+        if st.button("🚀 중력 마이크로렌징 시뮬레이션 시작", key="start_simulation_button"):
+            st.session_state.page = 'simulation'
+            st.rerun() # 페이지 전환을 위해 rerunning
+
+    with col2:
+        if st.button("📚 시뮬레이션 설명 보기", key="view_explanation_button"):
+            st.session_state.page = 'explanation'
+            st.rerun() # 페이지 전환을 위해 rerunning
+
+# --- 2. 시뮬레이션 페이지 함수 ---
+def simulation_page():
+    st.title("✨ 중력 마이크로렌징 시뮬레이터")
+    st.write("""
+        이 앱은 **중력 마이크로렌징** 현상으로 인한 광원 별의 밝기 변화를 시뮬레이션하고,
+        렌즈 별에 의한 **광원 별 이미지의 개념적 왜곡**을 보여줍니다.
+        아래 설정을 변경하여 밝기 곡선과 이미지 시뮬레이션이 어떻게 변하는지 확인해 보세요!
     """)
-else:
-    st.write("- **행성 포함:** 아니요")
 
-st.info("""
-**밝기 곡선:** 렌즈 별이 배경 광원 별 앞을 지나갈 때 밝기가 일시적으로 증가하는 피크가 발생합니다.
-행성이 존재하면 이 피크에 짧고 특징적인 변동(추가 피크 또는 딥)을 만들어냅니다.
+    st.write("---")
 
-**이미지 왜곡:**
-- **충격 매개변수가 0에 가까울수록 (중앙 정렬):** 광원 별의 빛이 렌즈 별 주변으로 강하게 휘어져 **아인슈타인 링**과 같은 원형 또는 부분적인 링 형태로 보일 수 있습니다.
-- **충격 매개변수가 0.1~0.5 (가까이 지나갈 때):** 광원 별의 이미지가 길게 **늘어나거나 두 개의 분리된 이미지**로 보일 수 있습니다.
-- **충격 매개변수가 클수록 (멀리 떨어져 있을 때):** 왜곡이 거의 없으며, 광원 별은 원래의 원형에 가깝게 보입니다.
-""")
+    # --- 2. 시뮬레이션 설정 입력 받기 ---
+    st.sidebar.header("설정")
 
-st.write("---")
+    # 광원 별 설정
+    st.sidebar.subheader("광원 별 (Source Star)")
+    source_mass = st.sidebar.number_input("질량 (태양 질량)", min_value=0.1, max_value=10.0, value=1.0, step=0.1)
+
+    # 렌즈 별 설정
+    st.sidebar.subheader("렌즈 별 (Lens Star)")
+    lens_mass = st.sidebar.number_input("질량 (태양 질량)", min_value=0.1, max_value=5.0, value=0.5, step=0.1)
+    lens_velocity = st.sidebar.slider("상대 속도 (km/s)", min_value=1.0, max_value=100.0, value=10.0, step=1.0)
+    impact_parameter = st.sidebar.slider("충격 매개변수", min_value=0.0, max_value=2.0, value=0.5, step=0.05)
+
+
+    # 행성 설정 (선택 사항)
+    st.sidebar.subheader("행성 (Planet - 선택 사항)")
+    has_planet = st.sidebar.checkbox("행성 포함", value=False)
+    if has_planet:
+        planet_mass_ratio = st.sidebar.slider("행성 질량비 (렌즈 별 질량 대비)", min_value=0.0001, max_value=0.1, value=0.001, format="%.4f")
+        planet_orbit_radius = st.sidebar.slider("행성 궤도 반지름 (Einstein Radius 단위)", min_value=0.01, max_value=3.0, value=1.0, step=0.01)
+        planet_phase = st.sidebar.slider("행성 초기 위상 (도)", min_value=0, max_value=360, value=0, step=10)
+    else:
+        planet_mass_ratio = 0.0
+        planet_orbit_radius = 0.0
+        planet_phase = 0
+
+    st.sidebar.write("---")
+    st.sidebar.info("참고: 이 시뮬레이터의 밝기 곡선과 이미지 시뮬레이션은 개념적인 모델에 기반하며, 실제 천체 물리 계산과 다를 수 있습니다.")
+
+    # 밝기 계산
+    time_points, magnifications = calculate_magnification_data(
+        lens_mass,
+        planet_mass_ratio,
+        planet_orbit_radius,
+        planet_phase,
+        lens_velocity,
+        impact_parameter,
+        has_planet
+    )
+
+    # --- 4. 밝기 곡선 그래프 그리기 ---
+    st.subheader("밝기 곡선")
+    fig_light_curve = plot_light_curve(time_points, magnifications)
+    st.pyplot(fig_light_curve)
+    plt.close(fig_light_curve) # 중요: 그래프 객체를 닫아 메모리 누수 방지
+
+    st.write("---")
+
+    # --- 5. 이미지 시뮬레이션 ---
+    st.subheader("이미지 왜곡 시뮬레이션 (개념적)")
+    st.write("""
+        아래 이미지는 **렌즈 별(중앙의 검은 점)**이 배경 광원 별의 빛을 휘게 하여
+        어떻게 보일 수 있는지 개념적으로 보여줍니다. 
+        실제 마이크로렌징 현상은 빛을 여러 경로로 휘게 하여 광원 별이 여러 개로 보이거나
+        아인슈타인 링과 같은 형태로 왜곡될 수 있습니다.
+    """)
+
+    fig_image_sim = create_microlensing_image_cached(impact_parameter)
+    st.pyplot(fig_image_sim)
+    plt.close(fig_image_sim) # 중요: 그래프 객체를 닫아 메모리 누수 방지
+
+    st.write("---")
+
+    # 메인으로 돌아가기 버튼
+    if st.button("⬅️ 메인 화면으로 돌아가기", key="back_to_main_sim"):
+        st.session_state.page = 'main'
+        st.rerun()
+
+# --- 3. 시뮬레이션 설명 페이지 함수 ---
+def explanation_page():
+    st.title("📚 시뮬레이션 설명")
+    st.write("""
+    이 페이지에서는 중력 마이크로렌징 시뮬레이터의 작동 원리와 각 매개변수에 대한 자세한 설명을 제공합니다.
+    """)
+    st.markdown("---")
+
+    st.subheader("중력 마이크로렌징이란?")
+    st.write("""
+    **중력 마이크로렌징(Gravitational Microlensing)**은 아인슈타인의 일반 상대성 이론에 의해 예측되는 현상으로,
+    무거운 천체(렌즈 별)가 배경의 밝은 천체(광원 별) 앞을 지나갈 때, 렌즈 별의 중력이 광원 별에서 오는 빛을 휘게 하여
+    광원 별의 밝기가 일시적으로 증가하거나, 이미지가 왜곡되어 여러 개로 보이는 현상을 말합니다.
+    """)
+
+    st.subheader("시뮬레이션 매개변수 설명")
+    st.write("""
+    - **광원 별 질량 (Source Star Mass):** 배경에 있는 빛을 내는 별의 질량입니다. 시뮬레이션에서는 밝기 변화의 스케일에 영향을 줍니다.
+    - **렌즈 별 질량 (Lens Star Mass):** 중력 렌즈 역할을 하는 별의 질량입니다. 이 질량이 클수록 빛을 더 강하게 휘게 하여 밝기 변화가 커집니다.
+    - **상대 속도 (Relative Velocity):** 렌즈 별이 광원 별 앞을 지나가는 상대적인 속도입니다. 속도가 빠를수록 밝기 변화 현상이 짧은 시간 동안 발생합니다.
+    - **충격 매개변수 (Impact Parameter):** 렌즈 별과 광원 별의 시선 방향 상의 가장 가까운 거리를 나타냅니다. 이 값이 작을수록 (0에 가까울수록) 렌즈 별과 광원 별이 더 정확히 정렬되어 밝기 증가 폭이 커지고 왜곡이 심해집니다.
+    - **행성 포함 (Planet Inclusion):** 렌즈 별에 행성이 동반되어 있는지 여부를 설정합니다.
+        - **행성 질량비 (Planet Mass Ratio):** 렌즈 별 질량 대비 행성의 질량 비율입니다. 이 비율이 클수록 행성에 의한 추가적인 밝기 변화 신호가 뚜렷해집니다.
+        - **행성 궤도 반지름 (Planet Orbit Radius):** 행성이 렌즈 별 주위를 도는 궤도의 크기입니다.
+        - **행성 초기 위상 (Planet Initial Phase):** 시뮬레이션 시작 시 행성의 궤도 상의 초기 위치를 각도로 나타냅니다.
+    """)
+
+    st.subheader("시뮬레이션 결과 해석")
+    st.info("""
+    **밝기 곡선:** 렌즈 별이 배경 광원 별 앞을 지나갈 때 밝기가 일시적으로 증가하는 피크가 발생합니다.
+    행성이 존재하면 이 피크에 짧고 특징적인 변동(추가 피크 또는 딥)을 만들어냅니다.
+
+    **이미지 왜곡:**
+    - **충격 매개변수가 0에 가까울수록 (중앙 정렬):** 광원 별의 빛이 렌즈 별 주변으로 강하게 휘어져 **아인슈타인 링**과 같은 원형 또는 부분적인 링 형태로 보일 수 있습니다.
+    - **충격 매개변수가 0.1~0.5 (가까이 지나갈 때):** 광원 별의 이미지가 길게 **늘어나거나 두 개의 분리된 이미지**로 보일 수 있습니다.
+    - **충격 매개변수가 클수록 (멀리 떨어져 있을 때):** 왜곡이 거의 없으며, 광원 별은 원래의 원형에 가깝게 보입니다.
+    """)
+
+    st.write("---")
+    # 메인으로 돌아가기 버튼
+    if st.button("⬅️ 메인 화면으로 돌아가기", key="back_to_main_exp"):
+        st.session_state.page = 'main'
+        st.rerun()
+
+# --- 앱의 진입점 (페이지 라우팅) ---
+if 'page' not in st.session_state:
+    st.session_state.page = 'main' # 초기 페이지 설정
+
+if st.session_state.page == 'main':
+    main_page()
+elif st.session_state.page == 'simulation':
+    simulation_page()
+elif st.session_state.page == 'explanation':
+    explanation_page()
+
 st.caption("© 2025 중력 마이크로렌징 시뮬레이터")
